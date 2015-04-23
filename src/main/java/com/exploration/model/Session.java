@@ -1,16 +1,20 @@
 package com.exploration.model;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Session {
     private String id;
     private List<LogEntry> logEntries;
     private long time;
+    private Map<String, Boolean> flagsForPaths;
 
     public Session(String id) {
         this.id = id;
         logEntries = new ArrayList<>();
+        flagsForPaths = new LinkedHashMap<>();
     }
 
     public String getId() {
@@ -35,5 +39,26 @@ public class Session {
 
     public Integer getNumberOfActions() {
         return logEntries.size();
+    }
+
+    public long getAverageTimeForAction() {
+        return time / getNumberOfActions();
+    }
+
+    public Map<String, Boolean> getFlagsForPaths() {
+        return flagsForPaths;
+    }
+
+    private boolean containsPath(String path) {
+        for (LogEntry logEntry : logEntries) {
+            if(logEntry.getPath().equals(path)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void setFlag(String path) {
+        flagsForPaths.put(path, containsPath(path));
     }
 }

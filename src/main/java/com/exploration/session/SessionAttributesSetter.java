@@ -5,13 +5,23 @@ import com.exploration.model.Session;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class SessionAttributesSetter {
-    public List<Session> populate(List<Session> sessions) {
+    public List<Session> populate(List<Session> sessions, Map<String, Integer> mostPopular) {
         removeSessionsWithOneEntry(sessions);
         setSessionTime(sessions);
+        setFlagsForPaths(sessions, mostPopular);
         return sessions;
+    }
+
+    private void setFlagsForPaths(List<Session> sessions, Map<String, Integer> mostPopular) {
+        for (Session session : sessions) {
+            for (String path : mostPopular.keySet()) {
+                session.setFlag(path);
+            }
+        }
     }
 
     private void setSessionTime(List<Session> sessions) {
