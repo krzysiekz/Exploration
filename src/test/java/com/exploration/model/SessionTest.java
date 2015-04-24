@@ -58,4 +58,42 @@ public class SessionTest {
         assertThat(session.getFlagsForPaths()).hasSize(1);
         assertThat(session.getFlagsForPaths().get("a.htm")).isFalse();
     }
+
+    @Test
+    public void shouldReturnProperToString() {
+        //given
+        Session session = new Session("user:1");
+        session.setTime(20);
+        session.addEntry(createLogEntry("a.htm"));
+        session.addEntry(createLogEntry("c.htm"));
+        session.setFlag("a.htm");
+        session.setFlag("b.htm");
+        session.setFlag("c.htm");
+        //when
+        String toString = session.toString();
+        //then
+        assertThat(toString).isEqualTo("20,2,10,true,false,true");
+    }
+
+    @Test
+    public void shouldReturnProperToStringForLongNumbers() {
+        //given
+        Session session = new Session("user:1");
+        session.setTime(2000);
+        session.addEntry(createLogEntry("a.htm"));
+        session.addEntry(createLogEntry("c.htm"));
+        session.setFlag("a.htm");
+        session.setFlag("b.htm");
+        session.setFlag("c.htm");
+        //when
+        String toString = session.toString();
+        //then
+        assertThat(toString).isEqualTo("2000,2,1000,true,false,true");
+    }
+
+    private LogEntry createLogEntry(String path) {
+        LogEntry logEntry = new LogEntry();
+        logEntry.setPath(path);
+        return logEntry;
+    }
 }

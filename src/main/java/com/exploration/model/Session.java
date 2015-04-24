@@ -1,11 +1,15 @@
 package com.exploration.model;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Session {
+    private static final String TO_STRING_PATTERN = "{0,number,#},{1,number,#},{2,number,#},{3}";
     private String id;
     private List<LogEntry> logEntries;
     private long time;
@@ -60,5 +64,12 @@ public class Session {
 
     public void setFlag(String path) {
         flagsForPaths.put(path, containsPath(path));
+    }
+
+    @Override
+    public String toString() {
+        return MessageFormat.format(TO_STRING_PATTERN,
+                time, getNumberOfActions(), getAverageTimeForAction(),
+                StringUtils.join(flagsForPaths.values(), ','));
     }
 }
