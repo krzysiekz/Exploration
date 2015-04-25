@@ -3,6 +3,7 @@ package com.exploration;
 import com.exploration.collector.LogEntriesCollector;
 import com.exploration.collector.SessionCollector;
 import com.exploration.collector.UserCollector;
+import com.exploration.collector.UserPageCollector;
 import com.exploration.filter.FilterChecker;
 import com.exploration.filter.LogEntryFilter;
 import com.exploration.filter.impl.GetMethodFilter;
@@ -16,6 +17,7 @@ import com.exploration.model.User;
 import com.exploration.output.impl.impl.ArffGeneratorImpl;
 import com.exploration.session.SessionAttributesSetter;
 import com.exploration.stats.PathStatsCalculator;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,10 +40,11 @@ public class Exploration {
     private static final String IDENTIFIED_ALL_SESSIONS = "Identified {0} sessions.";
     private static final String IDENTIFIED_VALID_SESSIONS = "Identified {0} valid sessions.";
     private static final String POPULAR_PATH_STATS = "{0}, Views: {1}, Percent: {2}";
-    private static final String OUTPUT_FILE_SAVED = "Output file saved to {0}";
+    private static final String SESSION_OUTPUT_FILE_SAVED = "Session output file saved to {0}";
+    private static final String USER_OUTPUT_FILE_SAVED = "User output file saved to {0}";
 
     public static void main(String[] args) {
-        if (args.length != 2) {
+        if (args.length != 3) {
             LOGGER.error(WRONG_NUMBER_OF_ARGUMENTS);
             return;
         }
@@ -71,7 +74,10 @@ public class Exploration {
             LOGGER.info(MessageFormat.format(IDENTIFIED_ALL_SESSIONS, sessions.size()));
             sessions = new SessionAttributesSetter().populate(sessions, mostPopularPaths);
             LOGGER.info(MessageFormat.format(IDENTIFIED_VALID_SESSIONS, sessions.size()));
+			UserPageCollector upCollector = new UserPageCollector(mostPopularPaths, logEntries);
+            upCollector.setVisitsOnMostPopularPagesForUsers(users);
             writeResultsToArffFile(args[1], sessions);
+            writeResultsForUsersToArffFile(args[2], users);
         } catch (IOException | ParseException e) {
             LOGGER.error(e);
         }
@@ -80,7 +86,16 @@ public class Exploration {
     private static void writeResultsToArffFile(String outputFileName, List<Session> sessions) {
         try(FileOutputStream fileOutputStream = new FileOutputStream(outputFileName)) {
             new ArffGeneratorImpl().generate(fileOutputStream, sessions);
-            LOGGER.info(MessageFormat.format(OUTPUT_FILE_SAVED, outputFileName));
+            LOGGER.info(MessageFormat.format(SESSION_OUTPUT_FILE_SAVED, outputFileName));
+        } catch (IOException e) {
+            LOGGER.error(e);
+        }
+    }
+    
+    private static void writeResultsForUsersToArffFile(String outputFileName, List<User> users) {
+        try(FileOutputStream fileOutputStream = new FileOutputStream(outputFileName)) {
+            new ArffGeneratorImpl().generateUserFiles(fileOutputStream, users);
+            LOGGER.info(MessageFormat.format(USER_OUTPUT_FILE_SAVED, outputFileName));
         } catch (IOException e) {
             LOGGER.error(e);
         }

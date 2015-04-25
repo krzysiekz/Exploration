@@ -1,12 +1,13 @@
 package com.exploration.output.impl.impl;
 
-import com.exploration.model.Session;
-import com.exploration.output.impl.ArffGenerator;
-
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
+
+import com.exploration.model.Session;
+import com.exploration.model.User;
+import com.exploration.output.impl.ArffGenerator;
 
 public class ArffGeneratorImpl implements ArffGenerator {
     @Override
@@ -17,10 +18,26 @@ public class ArffGeneratorImpl implements ArffGenerator {
             writeData(printStream, sessions);
         }
     }
+    
+    @Override
+	public void generateUserFiles(OutputStream outputStream, List<User> users) {
+    	if(!users.isEmpty()) {
+            final PrintStream printStream = new PrintStream(outputStream);
+            writeArffHeaderForUserFiles(printStream, users);
+            writeUserData(printStream, users);
+        }
+		
+	}
 
     private void writeData(PrintStream printStream, List<Session> sessions) {
         for (Session session : sessions) {
             printStream.println(session.toString());
+        }
+    }
+    
+    private void writeUserData(PrintStream printStream, List<User> users) {
+        for (User user: users) {
+            printStream.println(user.toString());
         }
     }
 
@@ -38,4 +55,19 @@ public class ArffGeneratorImpl implements ArffGenerator {
         printWriter.println();
         printWriter.println("@data");
     }
+    
+    private void writeArffHeaderForUserFiles(PrintStream printWriter, List<User> users) {
+    	 printWriter.println("@relation clark_net_users");
+         printWriter.println();
+         printWriter.println("@attribute 'user' string");
+         Map<String, Boolean> mostPopularPagesVisited = users.get(0).getVisitedPages();
+         for (String path : mostPopularPagesVisited.keySet()) {
+             printWriter.printf("@attribute '%s' {true, false}", path);
+             printWriter.println();
+         }
+         printWriter.println();
+         printWriter.println("@data");
+    }
+
+	
 }
